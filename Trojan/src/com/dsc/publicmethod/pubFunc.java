@@ -40,7 +40,7 @@ public class pubFunc {
 		String command = "cmd /c " + dosString;
 		BufferedReader bufferedReader;
 		String big5String = null;
-		String utf8String = null;
+		String utf8String = "Command is failed";
 		try {
 			process = rumtime.exec(command);
 			bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream(), "big5"));
@@ -48,7 +48,8 @@ public class pubFunc {
 			String tmp = null;
 			while ((big5String = bufferedReader.readLine()) != null) {
 				tmp = new String(big5String.getBytes(), "UTF-8");
-				if(tmp!=null&&!"".equals(tmp)&&!"null".equals(tmp)){
+				utf8String="";
+				if(tmp!=null&&!"".equals(tmp)){
 					utf8String+=tmp+"\n";
 				}
 				// dos.writeUTF(s);
